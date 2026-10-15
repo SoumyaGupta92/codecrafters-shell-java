@@ -19,7 +19,7 @@ public class Main {
                 if (builtinCommands.contains(input.split("\\s+")[1])) {
                     System.out.println(input.split("\\s+")[1] + " is a shell builtin");
                 } else {
-                    System.out.println(input.split("\\s+")[1] + ": command not found");
+                    System.out.println(input.split("\\s+")[1] + ": not found");
                 }
             } else if (input.equals("exit")) {
                 break;
