@@ -33,6 +33,9 @@ public class Main {
                 case "echo":
                     System.out.println(input.substring(5).trim());
                     break;
+                case "pwd":
+                    System.out.println(System.getProperty("user.dir"));
+                    break;
                 default:
                     executeExternal(commands);
                     break;
