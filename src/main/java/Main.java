@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class Main {
 
-    private static Set<String> builtinCommands = new HashSet<>(Set.of("exit", "echo", "type"));
+    private static Set<String> builtinCommands = new HashSet<>(Set.of("exit", "echo", "type", "pwd", "cd"));
 
     public static void main(String[] args) throws Exception {
 
