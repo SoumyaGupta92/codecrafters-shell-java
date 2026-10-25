@@ -59,6 +59,6 @@ public class Main {
                 }
             }
         }
-        System.out.println(commands[1] + ": command not found");
+        System.out.println(commands[1] + ": not found");
     }
 }
