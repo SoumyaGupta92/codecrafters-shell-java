@@ -90,7 +90,7 @@ public class Main {
 
         File executableFile = findExecutable(command);
 
-        if (executableFile != null) {
+        if (executableFile == null) {
             System.out.println(command + ": not found");
             return;
         }
