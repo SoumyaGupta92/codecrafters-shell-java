@@ -1,8 +1,10 @@
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -19,46 +21,92 @@ public class Main {
 
             String input = scan.nextLine();
 
-            String[] commands = input.split(" ");
+            List<String> commands = List.of(input.split("\\s+"));
 
-            if (commands[0].equals("type")) {
-                handleTypeCommand(commands);
-            } else if (commands[0].equals("exit")) {
-                break;
-            } else if (commands[0].equals("echo")) {
-                System.out.println(input.substring(4).trim());
-            } else {
-                System.out.println(input + ": command not found");
+            switch (commands.get(0)) {
+                case "type":
+                    handleTypeCommand(commands.get(1));
+                    break;
+                case "exit":
+                    System.exit(0);
+                    break;
+                case "echo":
+                    System.out.println(commands.get(1).trim());
+                    break;
+                default:
+                    executeExternal(commands);
+                    break;
             }
-
         }
     }
 
-    private static void handleTypeCommand(String[] commands) {
-        if (builtinCommands.contains(commands[1])) {
-            System.out.println(commands[1] + " is a shell builtin");
+    private static void handleTypeCommand(String command) {
+        if (builtinCommands.contains(command)) {
+            System.out.println(command + " is a shell builtin");
             return;
         } else {
-            String path = System.getenv("PATH");
-            if (path == null || path.isEmpty()) {
-                System.out.println(commands[1] + ": not found");
-                return;
-            }
+            File executable = findExecutable(command);
 
-            String[] directories = path.split(File.pathSeparator, -1);
-
-            for (String directory : directories) {
-                if (directory.isEmpty()) {
-                    directory = ".";
-                }
-                File executable = new File(directory, commands[1]);
-
-                if (executable.isFile() && executable.canExecute()) {
-                    System.out.println(commands[1] + " is " + executable.getAbsolutePath());
-                    return;
-                }
+            if (executable != null) {
+                System.out.println(
+                        command + " is " + executable.getAbsolutePath());
+            } else {
+                System.out.println(command + ": not found");
             }
         }
-        System.out.println(commands[1] + ": not found");
+    }
+
+    private static File findExecutable(String command) {
+
+        String path = System.getenv(command);
+
+        if (path == null) {
+            return null;
+        }
+
+        String[] directories = path.split(File.pathSeparator, -1);
+
+        for (String directory : directories) {
+
+            if (directory.isEmpty()) {
+                directory = ".";
+            }
+
+            File file = new File(directory, command);
+            if (file.isFile() && file.canExecute()) {
+                return file.getAbsoluteFile();
+            }
+        }
+
+        return null;
+    }
+
+    private static void executeExternal(List<String> commands) {
+
+        String command = commands.get(0);
+        if (command.isEmpty()) {
+            System.exit(0);
+        }
+
+        File executableFile = findExecutable(command);
+
+        if (executableFile != null) {
+            System.out.println(command + ": not found");
+            return;
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(commands);
+
+            builder.inheritIO();
+            Process process = builder.start();
+            process.waitFor();
+
+        } catch (IOException e) {
+
+            System.out.println(command + ": execution failed: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
