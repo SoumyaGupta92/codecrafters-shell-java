@@ -31,7 +31,7 @@ public class Main {
                     System.exit(0);
                     break;
                 case "echo":
-                    System.out.println(commands.get(1).trim());
+                    System.out.println(input.substring(5).trim());
                     break;
                 default:
                     executeExternal(commands);
