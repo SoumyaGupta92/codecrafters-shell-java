@@ -58,7 +58,7 @@ public class Main {
 
     private static File findExecutable(String command) {
 
-        String path = System.getenv(command);
+        String path = System.getenv("PATH");
 
         if (path == null) {
             return null;
