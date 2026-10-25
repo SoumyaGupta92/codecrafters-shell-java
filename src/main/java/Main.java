@@ -36,13 +36,17 @@ public class Main {
                 case "pwd":
                     System.out.println(System.getProperty("user.dir"));
                     break;
+                case "cd":
+                    handleCdCommand(commands);
+                    break;
                 default:
-                    executeExternal(commands);
+                    executeExternalFile(commands);
                     break;
             }
         }
     }
 
+    // responsible for handling the "type" command
     private static void handleTypeCommand(String command) {
         if (builtinCommands.contains(command)) {
             System.out.println(command + " is a shell builtin");
@@ -59,6 +63,7 @@ public class Main {
         }
     }
 
+    // Returns the File representing the executable, or null if not found
     private static File findExecutable(String command) {
 
         String path = System.getenv("PATH");
@@ -84,7 +89,8 @@ public class Main {
         return null;
     }
 
-    private static void executeExternal(List<String> commands) {
+    // Executes the File if present
+    private static void executeExternalFile(List<String> commands) {
 
         String command = commands.get(0);
         if (command.isEmpty()) {
@@ -112,4 +118,53 @@ public class Main {
             Thread.currentThread().interrupt();
         }
     }
+
+    private static void handleCdCommand(List<String> commands) {
+        // if (commands.size() < 2) {
+        // System.out.println("cd: missing argument");
+        // return;
+        // }
+
+        // String directory = commands.get(1);
+        // if (directory.equals("~")) {
+        // directory = System.getProperty("user.home");
+        // }
+
+        // File dir = new File(directory);
+        // if (!dir.exists()) {
+        // System.out.println("cd: " + directory + ": No such file or directory");
+        // return;
+        // }
+
+        // if (!dir.isDirectory()) {
+        // System.out.println("cd: " + directory + ": Not a directory");
+        // return;
+        // }
+
+        // System.setProperty("user.dir", dir.getAbsolutePath());
+        if (commands.size() > 1) {
+            String target = commands.get(1);
+
+            if (target.equals("~")) {
+                target = System.getProperty("user.home");
+            }
+
+            File directory = new File(target);
+
+            if (!directory.isAbsolute()) {
+                directory = new File(
+                        System.getProperty("user.dir"), target);
+            }
+
+            if (directory.isDirectory()) {
+                System.setProperty(
+                        "user.dir",
+                        directory.getAbsolutePath());
+            } else {
+                System.out.println(
+                        "cd: " + target + ": No such file or directory");
+            }
+        }
+    }
+
 }
